@@ -1,0 +1,11 @@
+Задача 2. 1. Создать граф, рассчитать характеристики
+2. Взять датасет и сделать разные визуализации графа
+
+Визуализация графов интерактивная:
+https://visjs.github.io/vis-network/examples/
+PyVis — интерактивная визуализация графов
+https://pyvis.readthedocs.io/en/latest/
+
+Загрузить в ipynb
+https://forms.gle/DD5jEhgUQH6hVfTn9
+ 

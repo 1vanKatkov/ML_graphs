@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='utf-8'?>
+<gexf xmlns="http://www.gexf.net/1.2draft" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2">
+  <meta lastmodifieddate="2026-10-26">
+    <creator>NetworkX 3.2.1</creator>
+  </meta>
+  <graph defaultedgetype="undirected" mode="static" name="">
+    <attributes mode="static" class="node">
+      <attribute id="0" title="role" type="string" />
+    </attributes>
+    <nodes>
+      <node id="Анна" label="Анна">
+        <attvalues>
+          <attvalue for="0" value="тимлид" />
+        </attvalues>
+      </node>
+      <node id="Борис" label="Борис">
+        <attvalues>
+          <attvalue for="0" value="backend" />
+        </attvalues>
+      </node>
+      <node id="Вера" label="Вера">
+        <attvalues>
+          <attvalue for="0" value="backend" />
+        </attvalues>
+      </node>
+      <node id="Глеб" label="Глеб">
+        <attvalues>
+          <attvalue for="0" value="frontend" />
+        </attvalues>
+      </node>
+      <node id="Дина" label="Дина">
+        <attvalues>
+          <attvalue for="0" value="frontend" />
+        </attvalues>
+      </node>
+      <node id="Егор" label="Егор">
+        <attvalues>
+          <attvalue for="0" value="QA" />
+        </attvalues>
+      </node>
+      <node id="Жанна" label="Жанна">
+        <attvalues>
+          <attvalue for="0" value="аналитик" />
+        </attvalues>
+      </node>
+      <node id="Зоя" label="Зоя">
+        <attvalues>
+          <attvalue for="0" value="дизайнер" />
+        </attvalues>
+      </node>
+      <node id="Илья" label="Илья">
+        <attvalues>
+          <attvalue for="0" value="DevOps" />
+        </attvalues>
+      </node>
+      <node id="Кира" label="Кира">
+        <attvalues>
+          <attvalue for="0" value="data scientist" />
+        </attvalues>
+      </node>
+    </nodes>
+    <edges>
+      <edge source="Анна" target="Борис" id="0" weight="5" />
+      <edge source="Анна" target="Вера" id="1" weight="4" />
+      <edge source="Анна" target="Глеб" id="2" weight="3" />
+      <edge source="Анна" target="Жанна" id="3" weight="6" />
+      <edge source="Борис" target="Вера" id="4" weight="7" />
+      <edge source="Борис" target="Илья" id="5" weight="3" />
+      <edge source="Борис" target="Егор" id="6" weight="2" />
+      <edge source="Вера" target="Илья" id="7" weight="2" />
+      <edge source="Вера" target="Кира" id="8" weight="4" />
+      <edge source="Глеб" target="Дина" id="9" weight="8" />
+      <edge source="Глеб" target="Зоя" id="10" weight="5" />
+      <edge source="Глеб" target="Егор" id="11" weight="2" />
+      <edge source="Дина" target="Зоя" id="12" weight="4" />
+      <edge source="Дина" target="Егор" id="13" weight="3" />
+      <edge source="Жанна" target="Кира" id="14" weight="5" />
+      <edge source="Жанна" target="Зоя" id="15" weight="2" />
+    </edges>
+  </graph>
+</gexf>

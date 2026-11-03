@@ -1,0 +1,90 @@
+reg,regLabel,fd,fdLabel,pop
+http://www.wikidata.org/entity/Q649,Москва,http://www.wikidata.org/entity/Q190778,Центральный федеральный округ,13274285.0
+http://www.wikidata.org/entity/Q1697,Московская область,http://www.wikidata.org/entity/Q190778,Центральный федеральный округ,7708499.0
+http://www.wikidata.org/entity/Q3680,Краснодарский край,http://www.wikidata.org/entity/Q483599,Южный федеральный округ,5842238.0
+http://www.wikidata.org/entity/Q656,Санкт-Петербург,http://www.wikidata.org/entity/Q383093,Северо-Западный федеральный округ,5652922.0
+http://www.wikidata.org/entity/Q5462,Свердловская область,http://www.wikidata.org/entity/Q41964,Уральский федеральный округ,4221452.0
+http://www.wikidata.org/entity/Q3573,Ростовская область,http://www.wikidata.org/entity/Q483599,Южный федеральный округ,4137335.0
+http://www.wikidata.org/entity/Q5710,Башкортостан,http://www.wikidata.org/entity/Q202317,Приволжский федеральный округ,4042377.0
+http://www.wikidata.org/entity/Q5481,Татарстан,http://www.wikidata.org/entity/Q202317,Приволжский федеральный округ,4003016.0
+http://www.wikidata.org/entity/Q5824,Тюменская область,http://www.wikidata.org/entity/Q41964,Уральский федеральный округ,3890800.0
+http://www.wikidata.org/entity/Q5714,Челябинская область,http://www.wikidata.org/entity/Q41964,Уральский федеральный округ,3385124.0
+http://www.wikidata.org/entity/Q5118,Дагестан,http://www.wikidata.org/entity/Q485161,Северо-Кавказский федеральный округ,3232224.0
+http://www.wikidata.org/entity/Q1727,Самарская область,http://www.wikidata.org/entity/Q202317,Приволжский федеральный округ,3112566.0
+http://www.wikidata.org/entity/Q2246,Нижегородская область,http://www.wikidata.org/entity/Q202317,Приволжский федеральный округ,3039421.0
+http://www.wikidata.org/entity/Q5207,Ставропольский край,http://www.wikidata.org/entity/Q485161,Северо-Кавказский федеральный округ,2884363.0
+http://www.wikidata.org/entity/Q6563,Красноярский край,http://www.wikidata.org/entity/Q41979,Сибирский федеральный округ,2837988.0
+http://www.wikidata.org/entity/Q5851,Новосибирская область,http://www.wikidata.org/entity/Q41979,Сибирский федеральный округ,2786540.0
+http://www.wikidata.org/entity/Q6076,Кемеровская область,http://www.wikidata.org/entity/Q41979,Сибирский федеральный округ,2527219.0
+http://www.wikidata.org/entity/Q5400,Пермский край,http://www.wikidata.org/entity/Q202317,Приволжский федеральный округ,2483633.0
+http://www.wikidata.org/entity/Q3819,Волгоградская область,http://www.wikidata.org/entity/Q483599,Южный федеральный округ,2434046.0
+http://www.wikidata.org/entity/Q5334,Саратовская область,http://www.wikidata.org/entity/Q202317,Приволжский федеральный округ,2369405.0
+http://www.wikidata.org/entity/Q6585,Иркутская область,http://www.wikidata.org/entity/Q41979,Сибирский федеральный округ,2322292.0
+http://www.wikidata.org/entity/Q16150196,Донецкая Народная Республика,,,2302444.0
+http://www.wikidata.org/entity/Q3447,Воронежская область,http://www.wikidata.org/entity/Q190778,Центральный федеральный округ,2260045.0
+http://www.wikidata.org/entity/Q5942,Алтайский край,http://www.wikidata.org/entity/Q41979,Сибирский федеральный округ,2099186.0
+http://www.wikidata.org/entity/Q2191,Ленинградская область,http://www.wikidata.org/entity/Q383093,Северо-Западный федеральный округ,2035762.0
+http://www.wikidata.org/entity/Q15966495,Республика Крым,http://www.wikidata.org/entity/Q483599,Южный федеральный округ,1896393.0
+http://www.wikidata.org/entity/Q5338,Оренбургская область,http://www.wikidata.org/entity/Q202317,Приволжский федеральный округ,1828655.0
+http://www.wikidata.org/entity/Q5835,Омская область,http://www.wikidata.org/entity/Q41979,Сибирский федеральный округ,1805806.0
+http://www.wikidata.org/entity/Q4341,Приморский край,http://www.wikidata.org/entity/Q41968,Дальневосточный федеральный округ,1799659.0
+http://www.wikidata.org/entity/Q6320,Ханты-Мансийский автономный округ — Югра,http://www.wikidata.org/entity/Q41964,Уральский федеральный округ,1759356.0
+http://www.wikidata.org/entity/Q114333615,Запорожская область,,,1638462.0
+http://www.wikidata.org/entity/Q5422,Удмуртия,http://www.wikidata.org/entity/Q202317,Приволжский федеральный округ,1493356.0
+http://www.wikidata.org/entity/Q5187,Чечня,http://www.wikidata.org/entity/Q485161,Северо-Кавказский федеральный округ,1492992.0
+http://www.wikidata.org/entity/Q3329,Белгородская область,http://www.wikidata.org/entity/Q190778,Центральный федеральный округ,1482025.0
+http://www.wikidata.org/entity/Q2792,Тульская область,http://www.wikidata.org/entity/Q190778,Центральный федеральный округ,1471140.0
+http://www.wikidata.org/entity/Q16746854,Луганская Народная Республика,,,1400000.0
+http://www.wikidata.org/entity/Q2702,Владимирская область,http://www.wikidata.org/entity/Q190778,Центральный федеральный округ,1309942.0
+http://www.wikidata.org/entity/Q7788,Хабаровский край,http://www.wikidata.org/entity/Q41968,Дальневосточный федеральный округ,1273488.0
+http://www.wikidata.org/entity/Q5545,Пензенская область,http://www.wikidata.org/entity/Q202317,Приволжский федеральный округ,1213113.0
+http://www.wikidata.org/entity/Q2292,Тверская область,http://www.wikidata.org/entity/Q190778,Центральный федеральный округ,1190574.0
+http://www.wikidata.org/entity/Q2448,Ярославская область,http://www.wikidata.org/entity/Q190778,Центральный федеральный округ,1187558.0
+http://www.wikidata.org/entity/Q5634,Ульяновская область,http://www.wikidata.org/entity/Q202317,Приволжский федеральный округ,1172782.0
+http://www.wikidata.org/entity/Q5466,Чувашия,http://www.wikidata.org/entity/Q202317,Приволжский федеральный округ,1167061.0
+http://www.wikidata.org/entity/Q2015,Вологодская область,http://www.wikidata.org/entity/Q383093,Северо-Западный федеральный округ,1160445.0
+http://www.wikidata.org/entity/Q2810,Брянская область,http://www.wikidata.org/entity/Q190778,Центральный федеральный округ,1132795.0
+http://www.wikidata.org/entity/Q5387,Кировская область,http://www.wikidata.org/entity/Q202317,Приволжский федеральный округ,1129935.0
+http://www.wikidata.org/entity/Q3510,Липецкая область,http://www.wikidata.org/entity/Q190778,Центральный федеральный округ,1125921.0
+http://www.wikidata.org/entity/Q3178,Курская область,http://www.wikidata.org/entity/Q190778,Центральный федеральный округ,1049783.0
+http://www.wikidata.org/entity/Q2753,Рязанская область,http://www.wikidata.org/entity/Q190778,Центральный федеральный округ,1043231.0
+http://www.wikidata.org/entity/Q5884,Томская область,http://www.wikidata.org/entity/Q41979,Сибирский федеральный округ,1039728.0
+http://www.wikidata.org/entity/Q6605,Якутия,http://www.wikidata.org/entity/Q41968,Дальневосточный федеральный округ,1001664.0
+http://www.wikidata.org/entity/Q2842,Калужская область,http://www.wikidata.org/entity/Q190778,Центральный федеральный округ,1000980.0
+http://www.wikidata.org/entity/Q1749,Калининградская область,http://www.wikidata.org/entity/Q383093,Северо-Западный федеральный округ,994599.0
+http://www.wikidata.org/entity/Q1875,Архангельская область,http://www.wikidata.org/entity/Q383093,Северо-Западный федеральный округ,989434.0
+http://www.wikidata.org/entity/Q6838,Забайкальский край,http://www.wikidata.org/entity/Q41968,Дальневосточный федеральный округ,984395.0
+http://www.wikidata.org/entity/Q6809,Бурятия,http://www.wikidata.org/entity/Q41968,Дальневосточный федеральный округ,971139.0
+http://www.wikidata.org/entity/Q3550,Тамбовская область,http://www.wikidata.org/entity/Q190778,Центральный федеральный округ,956292.0
+http://www.wikidata.org/entity/Q3941,Астраханская область,http://www.wikidata.org/entity/Q483599,Южный федеральный округ,946429.0
+http://www.wikidata.org/entity/Q2654,Ивановская область,http://www.wikidata.org/entity/Q190778,Центральный федеральный округ,905900.0
+http://www.wikidata.org/entity/Q5267,Кабардино-Балкария,http://www.wikidata.org/entity/Q483599,Южный федеральный округ,905464.0
+http://www.wikidata.org/entity/Q2347,Смоленская область,http://www.wikidata.org/entity/Q190778,Центральный федеральный округ,863987.0
+http://www.wikidata.org/entity/Q5340,Мордовия,http://www.wikidata.org/entity/Q202317,Приволжский федеральный округ,778965.0
+http://www.wikidata.org/entity/Q6886,Амурская область,http://www.wikidata.org/entity/Q41968,Дальневосточный федеральный округ,750083.0
+http://www.wikidata.org/entity/Q5741,Курганская область,http://www.wikidata.org/entity/Q41964,Уральский федеральный округ,744465.0
+http://www.wikidata.org/entity/Q2073,Республика Коми,http://www.wikidata.org/entity/Q383093,Северо-Западный федеральный округ,714785.0
+http://www.wikidata.org/entity/Q3129,Орловская область,http://www.wikidata.org/entity/Q190778,Центральный федеральный округ,692486.0
+http://www.wikidata.org/entity/Q5237,Северная Осетия,http://www.wikidata.org/entity/Q485161,Северо-Кавказский федеральный округ,678879.0
+http://www.wikidata.org/entity/Q5446,Марий Эл,http://www.wikidata.org/entity/Q202317,Приволжский федеральный округ,669854.0
+http://www.wikidata.org/entity/Q1759,Мурманская область,http://www.wikidata.org/entity/Q383093,Северо-Западный федеральный округ,656438.0
+http://www.wikidata.org/entity/Q2218,Псковская область,http://www.wikidata.org/entity/Q383093,Северо-Западный федеральный округ,574480.0
+http://www.wikidata.org/entity/Q2240,Новгородская область,http://www.wikidata.org/entity/Q383093,Северо-Западный федеральный округ,566960.0
+http://www.wikidata.org/entity/Q2596,Костромская область,http://www.wikidata.org/entity/Q190778,Центральный федеральный округ,566266.0
+http://www.wikidata.org/entity/Q5219,Ингушетия,http://www.wikidata.org/entity/Q483599,Южный федеральный округ,527200.0
+http://www.wikidata.org/entity/Q6543,Хакасия,http://www.wikidata.org/entity/Q41979,Сибирский федеральный округ,525557.0
+http://www.wikidata.org/entity/Q1914,Карелия,http://www.wikidata.org/entity/Q383093,Северо-Западный федеральный округ,518950.0
+http://www.wikidata.org/entity/Q6407,Ямало-Ненецкий автономный округ,http://www.wikidata.org/entity/Q41964,Уральский федеральный округ,515960.0
+http://www.wikidata.org/entity/Q3734,Адыгея,http://www.wikidata.org/entity/Q483599,Южный федеральный округ,500731.0
+http://www.wikidata.org/entity/Q7525,Севастополь,,,485386.0
+http://www.wikidata.org/entity/Q5328,Карачаево-Черкесия,http://www.wikidata.org/entity/Q483599,Южный федеральный округ,468322.0
+http://www.wikidata.org/entity/Q7797,Сахалинская область,http://www.wikidata.org/entity/Q41968,Дальневосточный федеральный округ,457590.0
+http://www.wikidata.org/entity/Q960,Тыва,http://www.wikidata.org/entity/Q41979,Сибирский федеральный округ,338483.0
+http://www.wikidata.org/entity/Q7948,Камчатский край,http://www.wikidata.org/entity/Q41968,Дальневосточный федеральный округ,288947.0
+http://www.wikidata.org/entity/Q3953,Калмыкия,http://www.wikidata.org/entity/Q483599,Южный федеральный округ,267588.0
+http://www.wikidata.org/entity/Q5971,Республика Алтай,http://www.wikidata.org/entity/Q41979,Сибирский федеральный округ,210095.0
+http://www.wikidata.org/entity/Q7730,Еврейская автономная область,http://www.wikidata.org/entity/Q41968,Дальневосточный федеральный округ,144428.0
+http://www.wikidata.org/entity/Q7971,Магаданская область,http://www.wikidata.org/entity/Q41968,Дальневосточный федеральный округ,133387.0
+http://www.wikidata.org/entity/Q7984,Чукотский автономный округ,http://www.wikidata.org/entity/Q41968,Дальневосточный федеральный округ,47778.0
+http://www.wikidata.org/entity/Q2164,Ненецкий автономный округ,http://www.wikidata.org/entity/Q383093,Северо-Западный федеральный округ,42224.0
+http://www.wikidata.org/entity/Q114331288,Херсонская область,,,

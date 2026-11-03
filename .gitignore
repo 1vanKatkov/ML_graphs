@@ -1,0 +1,4 @@
+vk_token.txt
+.env
+.ipynb_checkpoints/
+__pycache__/

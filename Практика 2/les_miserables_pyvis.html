@@ -1,0 +1,357 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script>function neighbourhoodHighlight(params) {
+  // console.log("in nieghbourhoodhighlight");
+  allNodes = nodes.get({ returnType: "Object" });
+  // originalNodes = JSON.parse(JSON.stringify(allNodes));
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    highlightActive = true;
+    var i, j;
+    var selectedNode = params.nodes[0];
+    var degrees = 2;
+
+    // mark all nodes as hard to read.
+    for (let nodeId in allNodes) {
+      // nodeColors[nodeId] = allNodes[nodeId].color;
+      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
+      if (allNodes[nodeId].hiddenLabel === undefined) {
+        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+    var connectedNodes = network.getConnectedNodes(selectedNode);
+    var allConnectedNodes = [];
+
+    // get the second degree nodes
+    for (i = 1; i < degrees; i++) {
+      for (j = 0; j < connectedNodes.length; j++) {
+        allConnectedNodes = allConnectedNodes.concat(
+          network.getConnectedNodes(connectedNodes[j])
+        );
+      }
+    }
+
+    // all second degree nodes get a different color and their label back
+    for (i = 0; i < allConnectedNodes.length; i++) {
+      // allNodes[allConnectedNodes[i]].color = "pink";
+      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
+      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[allConnectedNodes[i]].label =
+          allNodes[allConnectedNodes[i]].hiddenLabel;
+        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // all first degree nodes get their own color and their label back
+    for (i = 0; i < connectedNodes.length; i++) {
+      // allNodes[connectedNodes[i]].color = undefined;
+      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
+      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[connectedNodes[i]].label =
+          allNodes[connectedNodes[i]].hiddenLabel;
+        allNodes[connectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // the main node gets its own color and its label back.
+    // allNodes[selectedNode].color = undefined;
+    allNodes[selectedNode].color = nodeColors[selectedNode];
+    if (allNodes[selectedNode].hiddenLabel !== undefined) {
+      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
+      allNodes[selectedNode].hiddenLabel = undefined;
+    }
+  } else if (highlightActive === true) {
+    // console.log("highlightActive was true");
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      // allNodes[nodeId].color = "purple";
+      allNodes[nodeId].color = nodeColors[nodeId];
+      // delete allNodes[nodeId].color;
+      if (allNodes[nodeId].hiddenLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
+        allNodes[nodeId].hiddenLabel = undefined;
+      }
+    }
+    highlightActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    // console.log("Nothing was selected");
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        // allNodes[nodeId].color = {};
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function filterHighlight(params) {
+  allNodes = nodes.get({ returnType: "Object" });
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    filterActive = true;
+    let selectedNodes = params.nodes;
+
+    // hiding all nodes and saving the label
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = true;
+      if (allNodes[nodeId].savedLabel === undefined) {
+        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+
+    for (let i=0; i < selectedNodes.length; i++) {
+      allNodes[selectedNodes[i]].hidden = false;
+      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
+        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
+        allNodes[selectedNodes[i]].savedLabel = undefined;
+      }
+    }
+
+  } else if (filterActive === true) {
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = false;
+      if (allNodes[nodeId].savedLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
+        allNodes[nodeId].savedLabel = undefined;
+      }
+    }
+    filterActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function selectNode(nodes) {
+  network.selectNodes(nodes);
+  neighbourhoodHighlight({ nodes: nodes });
+  return nodes;
+}
+
+function selectNodes(nodes) {
+  network.selectNodes(nodes);
+  filterHighlight({nodes: nodes});
+  return nodes;
+}
+
+function highlightFilter(filter) {
+  let selectedNodes = []
+  let selectedProp = filter['property']
+  if (filter['item'] === 'node') {
+    let allNodes = nodes.get({ returnType: "Object" });
+    for (let nodeId in allNodes) {
+      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
+        selectedNodes.push(nodeId)
+      }
+    }
+  }
+  else if (filter['item'] === 'edge'){
+    let allEdges = edges.get({returnType: 'object'});
+    // check if the selected property exists for selected edge and select the nodes connected to the edge
+    for (let edge in allEdges) {
+      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
+        selectedNodes.push(allEdges[edge]['from'])
+        selectedNodes.push(allEdges[edge]['to'])
+      }
+    }
+  }
+  selectNodes(selectedNodes)
+}</script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+            
+            
+            
+            
+            
+
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 600px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#e6194b", "id": "Napoleon", "label": "Napoleon", "shape": "dot", "size": 9.2, "title": "Napoleon\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 1\nPageRank: 0.003\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 0"}, {"color": "#e6194b", "id": "Myriel", "label": "Myriel", "shape": "dot", "size": 23.6, "title": "Myriel\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 10\nPageRank: 0.039\nbetweenness: 0.177\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 0"}, {"color": "#e6194b", "id": "MlleBaptistine", "label": "MlleBaptistine", "shape": "dot", "size": 14.8, "title": "MlleBaptistine\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 3\nPageRank: 0.017\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 0"}, {"color": "#e6194b", "id": "MmeMagloire", "label": "MmeMagloire", "shape": "dot", "size": 16.0, "title": "MmeMagloire\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 3\nPageRank: 0.020\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 0"}, {"color": "#e6194b", "id": "CountessDeLo", "label": "CountessDeLo", "shape": "dot", "size": 9.2, "title": "CountessDeLo\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 1\nPageRank: 0.003\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 0"}, {"color": "#e6194b", "id": "Geborand", "label": "Geborand", "shape": "dot", "size": 9.2, "title": "Geborand\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 1\nPageRank: 0.003\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 0"}, {"color": "#e6194b", "id": "Champtercier", "label": "Champtercier", "shape": "dot", "size": 9.2, "title": "Champtercier\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 1\nPageRank: 0.003\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 0"}, {"color": "#e6194b", "id": "Cravatte", "label": "Cravatte", "shape": "dot", "size": 9.2, "title": "Cravatte\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 1\nPageRank: 0.003\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 0"}, {"color": "#e6194b", "id": "Count", "label": "Count", "shape": "dot", "size": 9.6, "title": "Count\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 1\nPageRank: 0.004\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 0"}, {"color": "#e6194b", "id": "OldMan", "label": "OldMan", "shape": "dot", "size": 9.2, "title": "OldMan\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 1\nPageRank: 0.003\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 0"}, {"color": "#911eb4", "id": "Valjean", "label": "Valjean", "shape": "dot", "size": 48.0, "title": "Valjean\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 36\nPageRank: 0.100\nbetweenness: 0.570\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#911eb4", "id": "Labarre", "label": "Labarre", "shape": "dot", "size": 8.8, "title": "Labarre\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 1\nPageRank: 0.002\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#3cb44b", "id": "Marguerite", "label": "Marguerite", "shape": "dot", "size": 9.2, "title": "Marguerite\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 2\nPageRank: 0.003\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 1"}, {"color": "#911eb4", "id": "MmeDeR", "label": "MmeDeR", "shape": "dot", "size": 8.8, "title": "MmeDeR\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 1\nPageRank: 0.002\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#911eb4", "id": "Isabeau", "label": "Isabeau", "shape": "dot", "size": 8.8, "title": "Isabeau\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 1\nPageRank: 0.002\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#911eb4", "id": "Gervais", "label": "Gervais", "shape": "dot", "size": 8.8, "title": "Gervais\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 1\nPageRank: 0.002\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#3cb44b", "id": "Listolier", "label": "Listolier", "shape": "dot", "size": 13.2, "title": "Listolier\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 7\nPageRank: 0.013\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 1"}, {"color": "#3cb44b", "id": "Tholomyes", "label": "Tholomyes", "shape": "dot", "size": 13.600000000000001, "title": "Tholomyes\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 9\nPageRank: 0.014\nbetweenness: 0.041\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 1"}, {"color": "#3cb44b", "id": "Fameuil", "label": "Fameuil", "shape": "dot", "size": 13.2, "title": "Fameuil\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 7\nPageRank: 0.013\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 1"}, {"color": "#3cb44b", "id": "Blacheville", "label": "Blacheville", "shape": "dot", "size": 13.600000000000001, "title": "Blacheville\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 7\nPageRank: 0.014\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 1"}, {"color": "#3cb44b", "id": "Favourite", "label": "Favourite", "shape": "dot", "size": 13.600000000000001, "title": "Favourite\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 7\nPageRank: 0.014\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 1"}, {"color": "#3cb44b", "id": "Dahlia", "label": "Dahlia", "shape": "dot", "size": 13.600000000000001, "title": "Dahlia\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 7\nPageRank: 0.014\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 1"}, {"color": "#3cb44b", "id": "Zephine", "label": "Zephine", "shape": "dot", "size": 13.2, "title": "Zephine\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 7\nPageRank: 0.013\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 1"}, {"color": "#3cb44b", "id": "Fantine", "label": "Fantine", "shape": "dot", "size": 18.8, "title": "Fantine\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 15\nPageRank: 0.027\nbetweenness: 0.130\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 1"}, {"color": "#f58231", "id": "MmeThenardier", "label": "MmeThenardier", "shape": "dot", "size": 16.0, "title": "MmeThenardier\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 11\nPageRank: 0.020\nbetweenness: 0.029\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 3"}, {"color": "#f58231", "id": "Thenardier", "label": "Thenardier", "shape": "dot", "size": 22.4, "title": "Thenardier\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 16\nPageRank: 0.036\nbetweenness: 0.075\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 3"}, {"color": "#911eb4", "id": "Cosette", "label": "Cosette", "shape": "dot", "size": 22.799999999999997, "title": "Cosette\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 11\nPageRank: 0.037\nbetweenness: 0.024\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#911eb4", "id": "Javert", "label": "Javert", "shape": "dot", "size": 18.8, "title": "Javert\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 17\nPageRank: 0.027\nbetweenness: 0.054\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#911eb4", "id": "Fauchelevent", "label": "Fauchelevent", "shape": "dot", "size": 13.2, "title": "Fauchelevent\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 4\nPageRank: 0.013\nbetweenness: 0.026\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#4363d8", "id": "Bamatabois", "label": "Bamatabois", "shape": "dot", "size": 11.6, "title": "Bamatabois\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 8\nPageRank: 0.009\nbetweenness: 0.008\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 2"}, {"color": "#911eb4", "id": "Perpetue", "label": "Perpetue", "shape": "dot", "size": 9.6, "title": "Perpetue\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 2\nPageRank: 0.004\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#911eb4", "id": "Simplice", "label": "Simplice", "shape": "dot", "size": 10.8, "title": "Simplice\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 4\nPageRank: 0.007\nbetweenness: 0.009\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#911eb4", "id": "Scaufflaire", "label": "Scaufflaire", "shape": "dot", "size": 8.8, "title": "Scaufflaire\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 1\nPageRank: 0.002\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#911eb4", "id": "Woman1", "label": "Woman1", "shape": "dot", "size": 9.6, "title": "Woman1\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 2\nPageRank: 0.004\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#4363d8", "id": "Judge", "label": "Judge", "shape": "dot", "size": 12.399999999999999, "title": "Judge\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 6\nPageRank: 0.011\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 2"}, {"color": "#4363d8", "id": "Champmathieu", "label": "Champmathieu", "shape": "dot", "size": 12.399999999999999, "title": "Champmathieu\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 6\nPageRank: 0.011\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 2"}, {"color": "#4363d8", "id": "Brevet", "label": "Brevet", "shape": "dot", "size": 11.6, "title": "Brevet\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 6\nPageRank: 0.009\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 2"}, {"color": "#4363d8", "id": "Chenildieu", "label": "Chenildieu", "shape": "dot", "size": 11.6, "title": "Chenildieu\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 6\nPageRank: 0.009\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 2"}, {"color": "#4363d8", "id": "Cochepaille", "label": "Cochepaille", "shape": "dot", "size": 11.6, "title": "Cochepaille\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 6\nPageRank: 0.009\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 2"}, {"color": "#911eb4", "id": "Pontmercy", "label": "Pontmercy", "shape": "dot", "size": 9.6, "title": "Pontmercy\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 3\nPageRank: 0.004\nbetweenness: 0.007\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#f58231", "id": "Boulatruelle", "label": "Boulatruelle", "shape": "dot", "size": 8.8, "title": "Boulatruelle\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 1\nPageRank: 0.002\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 3"}, {"color": "#f58231", "id": "Eponine", "label": "Eponine", "shape": "dot", "size": 12.8, "title": "Eponine\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 11\nPageRank: 0.012\nbetweenness: 0.011\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 3"}, {"color": "#f58231", "id": "Anzelma", "label": "Anzelma", "shape": "dot", "size": 9.6, "title": "Anzelma\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 3\nPageRank: 0.004\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 3"}, {"color": "#911eb4", "id": "Woman2", "label": "Woman2", "shape": "dot", "size": 10.0, "title": "Woman2\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 3\nPageRank: 0.005\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#911eb4", "id": "MotherInnocent", "label": "MotherInnocent", "shape": "dot", "size": 10.0, "title": "MotherInnocent\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 2\nPageRank: 0.005\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#911eb4", "id": "Gribier", "label": "Gribier", "shape": "dot", "size": 9.2, "title": "Gribier\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 1\nPageRank: 0.003\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#46f0f0", "id": "MmeBurgon", "label": "MmeBurgon", "shape": "dot", "size": 10.4, "title": "MmeBurgon\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 2\nPageRank: 0.006\nbetweenness: 0.026\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 5"}, {"color": "#46f0f0", "id": "Jondrette", "label": "Jondrette", "shape": "dot", "size": 9.6, "title": "Jondrette\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 1\nPageRank: 0.004\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 5"}, {"color": "#46f0f0", "id": "Gavroche", "label": "Gavroche", "shape": "dot", "size": 19.200000000000003, "title": "Gavroche\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 22\nPageRank: 0.028\nbetweenness: 0.165\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 5"}, {"color": "#911eb4", "id": "Gillenormand", "label": "Gillenormand", "shape": "dot", "size": 15.2, "title": "Gillenormand\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 7\nPageRank: 0.018\nbetweenness: 0.020\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#911eb4", "id": "Magnon", "label": "Magnon", "shape": "dot", "size": 9.2, "title": "Magnon\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 2\nPageRank: 0.003\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#911eb4", "id": "MlleGillenormand", "label": "MlleGillenormand", "shape": "dot", "size": 14.8, "title": "MlleGillenormand\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 7\nPageRank: 0.017\nbetweenness: 0.048\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#911eb4", "id": "MmePontmercy", "label": "MmePontmercy", "shape": "dot", "size": 9.6, "title": "MmePontmercy\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 2\nPageRank: 0.004\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#911eb4", "id": "MlleVaubois", "label": "MlleVaubois", "shape": "dot", "size": 9.2, "title": "MlleVaubois\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 1\nPageRank: 0.003\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#911eb4", "id": "LtGillenormand", "label": "LtGillenormand", "shape": "dot", "size": 10.0, "title": "LtGillenormand\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 4\nPageRank: 0.005\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#911eb4", "id": "Marius", "label": "Marius", "shape": "dot", "size": 28.8, "title": "Marius\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 19\nPageRank: 0.052\nbetweenness: 0.132\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#911eb4", "id": "BaronessT", "label": "BaronessT", "shape": "dot", "size": 9.2, "title": "BaronessT\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 2\nPageRank: 0.003\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#46f0f0", "id": "Mabeuf", "label": "Mabeuf", "shape": "dot", "size": 12.0, "title": "Mabeuf\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 11\nPageRank: 0.010\nbetweenness: 0.028\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 5"}, {"color": "#46f0f0", "id": "Enjolras", "label": "Enjolras", "shape": "dot", "size": 22.799999999999997, "title": "Enjolras\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 15\nPageRank: 0.037\nbetweenness: 0.043\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 5"}, {"color": "#46f0f0", "id": "Combeferre", "label": "Combeferre", "shape": "dot", "size": 18.8, "title": "Combeferre\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 11\nPageRank: 0.027\nbetweenness: 0.001\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 5"}, {"color": "#46f0f0", "id": "Prouvaire", "label": "Prouvaire", "shape": "dot", "size": 11.6, "title": "Prouvaire\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 9\nPageRank: 0.009\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 5"}, {"color": "#46f0f0", "id": "Feuilly", "label": "Feuilly", "shape": "dot", "size": 14.0, "title": "Feuilly\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 11\nPageRank: 0.015\nbetweenness: 0.001\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 5"}, {"color": "#46f0f0", "id": "Courfeyrac", "label": "Courfeyrac", "shape": "dot", "size": 21.200000000000003, "title": "Courfeyrac\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 13\nPageRank: 0.033\nbetweenness: 0.005\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 5"}, {"color": "#46f0f0", "id": "Bahorel", "label": "Bahorel", "shape": "dot", "size": 14.4, "title": "Bahorel\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 12\nPageRank: 0.016\nbetweenness: 0.002\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 5"}, {"color": "#46f0f0", "id": "Bossuet", "label": "Bossuet", "shape": "dot", "size": 18.4, "title": "Bossuet\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 13\nPageRank: 0.026\nbetweenness: 0.031\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 5"}, {"color": "#46f0f0", "id": "Joly", "label": "Joly", "shape": "dot", "size": 15.2, "title": "Joly\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 12\nPageRank: 0.018\nbetweenness: 0.002\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 5"}, {"color": "#46f0f0", "id": "Grantaire", "label": "Grantaire", "shape": "dot", "size": 11.2, "title": "Grantaire\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 10\nPageRank: 0.008\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 5"}, {"color": "#46f0f0", "id": "MotherPlutarch", "label": "MotherPlutarch", "shape": "dot", "size": 9.2, "title": "MotherPlutarch\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 1\nPageRank: 0.003\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 5"}, {"color": "#f58231", "id": "Gueulemer", "label": "Gueulemer", "shape": "dot", "size": 14.0, "title": "Gueulemer\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 10\nPageRank: 0.015\nbetweenness: 0.005\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 3"}, {"color": "#f58231", "id": "Babet", "label": "Babet", "shape": "dot", "size": 14.4, "title": "Babet\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 10\nPageRank: 0.016\nbetweenness: 0.005\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 3"}, {"color": "#f58231", "id": "Claquesous", "label": "Claquesous", "shape": "dot", "size": 12.8, "title": "Claquesous\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 10\nPageRank: 0.012\nbetweenness: 0.005\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 3"}, {"color": "#f58231", "id": "Montparnasse", "label": "Montparnasse", "shape": "dot", "size": 11.2, "title": "Montparnasse\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 9\nPageRank: 0.008\nbetweenness: 0.004\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 3"}, {"color": "#911eb4", "id": "Toussaint", "label": "Toussaint", "shape": "dot", "size": 9.6, "title": "Toussaint\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 3\nPageRank: 0.004\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 4"}, {"color": "#46f0f0", "id": "Child1", "label": "Child1", "shape": "dot", "size": 10.4, "title": "Child1\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 2\nPageRank: 0.006\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 5"}, {"color": "#46f0f0", "id": "Child2", "label": "Child2", "shape": "dot", "size": 10.4, "title": "Child2\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 2\nPageRank: 0.006\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 5"}, {"color": "#f58231", "id": "Brujon", "label": "Brujon", "shape": "dot", "size": 11.2, "title": "Brujon\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 7\nPageRank: 0.008\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 3"}, {"color": "#46f0f0", "id": "MmeHucheloup", "label": "MmeHucheloup", "shape": "dot", "size": 10.0, "title": "MmeHucheloup\n\u0441\u0442\u0435\u043f\u0435\u043d\u044c: 7\nPageRank: 0.005\nbetweenness: 0.000\n\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e: 5"}]);
+                  edges = new vis.DataSet([{"from": "Napoleon", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Myriel", "value": 1}, {"from": "Myriel", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 8", "to": "MlleBaptistine", "value": 8}, {"from": "Myriel", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 10", "to": "MmeMagloire", "value": 10}, {"from": "Myriel", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "CountessDeLo", "value": 1}, {"from": "Myriel", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Geborand", "value": 1}, {"from": "Myriel", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Champtercier", "value": 1}, {"from": "Myriel", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Cravatte", "value": 1}, {"from": "Myriel", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Count", "value": 2}, {"from": "Myriel", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "OldMan", "value": 1}, {"from": "Myriel", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 5", "to": "Valjean", "value": 5}, {"from": "MlleBaptistine", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 6", "to": "MmeMagloire", "value": 6}, {"from": "MlleBaptistine", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Valjean", "value": 3}, {"from": "MmeMagloire", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Valjean", "value": 3}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Labarre", "value": 1}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Marguerite", "value": 1}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "MmeDeR", "value": 1}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Isabeau", "value": 1}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Gervais", "value": 1}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 9", "to": "Fantine", "value": 9}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 7", "to": "MmeThenardier", "value": 7}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 12", "to": "Thenardier", "value": 12}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 31", "to": "Cosette", "value": 31}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 17", "to": "Javert", "value": 17}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 8", "to": "Fauchelevent", "value": 8}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Bamatabois", "value": 2}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Simplice", "value": 3}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Scaufflaire", "value": 1}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Woman1", "value": 2}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Judge", "value": 3}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Champmathieu", "value": 3}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Brevet", "value": 2}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Chenildieu", "value": 2}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Cochepaille", "value": 2}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Woman2", "value": 3}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "MotherInnocent", "value": 1}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Gavroche", "value": 1}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Gillenormand", "value": 2}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "MlleGillenormand", "value": 2}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 19", "to": "Marius", "value": 19}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 4", "to": "Enjolras", "value": 4}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Bossuet", "value": 1}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Gueulemer", "value": 1}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Babet", "value": 1}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Claquesous", "value": 1}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Montparnasse", "value": 1}, {"from": "Valjean", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Toussaint", "value": 1}, {"from": "Marguerite", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Fantine", "value": 2}, {"from": "Listolier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 4", "to": "Tholomyes", "value": 4}, {"from": "Listolier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 4", "to": "Fameuil", "value": 4}, {"from": "Listolier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 4", "to": "Blacheville", "value": 4}, {"from": "Listolier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Favourite", "value": 3}, {"from": "Listolier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Dahlia", "value": 3}, {"from": "Listolier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Zephine", "value": 3}, {"from": "Listolier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Fantine", "value": 3}, {"from": "Tholomyes", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 4", "to": "Fameuil", "value": 4}, {"from": "Tholomyes", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 4", "to": "Blacheville", "value": 4}, {"from": "Tholomyes", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Favourite", "value": 3}, {"from": "Tholomyes", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Dahlia", "value": 3}, {"from": "Tholomyes", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Zephine", "value": 3}, {"from": "Tholomyes", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Fantine", "value": 3}, {"from": "Tholomyes", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Cosette", "value": 1}, {"from": "Tholomyes", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Marius", "value": 1}, {"from": "Fameuil", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 4", "to": "Blacheville", "value": 4}, {"from": "Fameuil", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Favourite", "value": 3}, {"from": "Fameuil", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Dahlia", "value": 3}, {"from": "Fameuil", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Zephine", "value": 3}, {"from": "Fameuil", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Fantine", "value": 3}, {"from": "Blacheville", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 4", "to": "Favourite", "value": 4}, {"from": "Blacheville", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Dahlia", "value": 3}, {"from": "Blacheville", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Zephine", "value": 3}, {"from": "Blacheville", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Fantine", "value": 3}, {"from": "Favourite", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 5", "to": "Dahlia", "value": 5}, {"from": "Favourite", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 4", "to": "Zephine", "value": 4}, {"from": "Favourite", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 4", "to": "Fantine", "value": 4}, {"from": "Dahlia", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 4", "to": "Zephine", "value": 4}, {"from": "Dahlia", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 4", "to": "Fantine", "value": 4}, {"from": "Zephine", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 4", "to": "Fantine", "value": 4}, {"from": "Fantine", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "MmeThenardier", "value": 2}, {"from": "Fantine", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Thenardier", "value": 1}, {"from": "Fantine", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 5", "to": "Javert", "value": 5}, {"from": "Fantine", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Bamatabois", "value": 1}, {"from": "Fantine", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Perpetue", "value": 1}, {"from": "Fantine", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Simplice", "value": 2}, {"from": "MmeThenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 13", "to": "Thenardier", "value": 13}, {"from": "MmeThenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 4", "to": "Cosette", "value": 4}, {"from": "MmeThenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Javert", "value": 1}, {"from": "MmeThenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Eponine", "value": 2}, {"from": "MmeThenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Anzelma", "value": 1}, {"from": "MmeThenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Magnon", "value": 1}, {"from": "MmeThenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Gueulemer", "value": 1}, {"from": "MmeThenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Babet", "value": 1}, {"from": "MmeThenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Claquesous", "value": 1}, {"from": "Thenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Cosette", "value": 1}, {"from": "Thenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 5", "to": "Javert", "value": 5}, {"from": "Thenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Pontmercy", "value": 1}, {"from": "Thenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Boulatruelle", "value": 1}, {"from": "Thenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Eponine", "value": 3}, {"from": "Thenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Anzelma", "value": 2}, {"from": "Thenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Gavroche", "value": 1}, {"from": "Thenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Marius", "value": 2}, {"from": "Thenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 5", "to": "Gueulemer", "value": 5}, {"from": "Thenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 6", "to": "Babet", "value": 6}, {"from": "Thenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 4", "to": "Claquesous", "value": 4}, {"from": "Thenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Montparnasse", "value": 1}, {"from": "Thenardier", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Brujon", "value": 3}, {"from": "Cosette", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Javert", "value": 1}, {"from": "Cosette", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Woman2", "value": 1}, {"from": "Cosette", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Gillenormand", "value": 3}, {"from": "Cosette", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "MlleGillenormand", "value": 2}, {"from": "Cosette", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "LtGillenormand", "value": 1}, {"from": "Cosette", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 21", "to": "Marius", "value": 21}, {"from": "Cosette", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Toussaint", "value": 2}, {"from": "Javert", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Fauchelevent", "value": 1}, {"from": "Javert", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Bamatabois", "value": 1}, {"from": "Javert", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Simplice", "value": 1}, {"from": "Javert", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Woman1", "value": 1}, {"from": "Javert", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Woman2", "value": 1}, {"from": "Javert", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Gavroche", "value": 1}, {"from": "Javert", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 6", "to": "Enjolras", "value": 6}, {"from": "Javert", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Gueulemer", "value": 1}, {"from": "Javert", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Babet", "value": 2}, {"from": "Javert", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Claquesous", "value": 1}, {"from": "Javert", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Montparnasse", "value": 1}, {"from": "Javert", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Toussaint", "value": 1}, {"from": "Fauchelevent", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "MotherInnocent", "value": 3}, {"from": "Fauchelevent", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Gribier", "value": 2}, {"from": "Bamatabois", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Judge", "value": 2}, {"from": "Bamatabois", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Champmathieu", "value": 2}, {"from": "Bamatabois", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Brevet", "value": 1}, {"from": "Bamatabois", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Chenildieu", "value": 1}, {"from": "Bamatabois", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Cochepaille", "value": 1}, {"from": "Perpetue", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Simplice", "value": 2}, {"from": "Judge", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Champmathieu", "value": 3}, {"from": "Judge", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Brevet", "value": 2}, {"from": "Judge", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Chenildieu", "value": 2}, {"from": "Judge", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Cochepaille", "value": 2}, {"from": "Champmathieu", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Brevet", "value": 2}, {"from": "Champmathieu", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Chenildieu", "value": 2}, {"from": "Champmathieu", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Cochepaille", "value": 2}, {"from": "Brevet", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Chenildieu", "value": 2}, {"from": "Brevet", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Cochepaille", "value": 2}, {"from": "Chenildieu", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Cochepaille", "value": 2}, {"from": "Pontmercy", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "MmePontmercy", "value": 1}, {"from": "Pontmercy", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Marius", "value": 1}, {"from": "Eponine", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Anzelma", "value": 2}, {"from": "Eponine", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 5", "to": "Marius", "value": 5}, {"from": "Eponine", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Mabeuf", "value": 1}, {"from": "Eponine", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Courfeyrac", "value": 1}, {"from": "Eponine", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Gueulemer", "value": 1}, {"from": "Eponine", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Babet", "value": 1}, {"from": "Eponine", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Claquesous", "value": 1}, {"from": "Eponine", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Montparnasse", "value": 1}, {"from": "Eponine", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Brujon", "value": 1}, {"from": "MmeBurgon", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Jondrette", "value": 1}, {"from": "MmeBurgon", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Gavroche", "value": 2}, {"from": "Gavroche", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 4", "to": "Marius", "value": 4}, {"from": "Gavroche", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Mabeuf", "value": 1}, {"from": "Gavroche", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 7", "to": "Enjolras", "value": 7}, {"from": "Gavroche", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 6", "to": "Combeferre", "value": 6}, {"from": "Gavroche", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Prouvaire", "value": 1}, {"from": "Gavroche", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Feuilly", "value": 2}, {"from": "Gavroche", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 7", "to": "Courfeyrac", "value": 7}, {"from": "Gavroche", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 5", "to": "Bahorel", "value": 5}, {"from": "Gavroche", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 5", "to": "Bossuet", "value": 5}, {"from": "Gavroche", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Joly", "value": 3}, {"from": "Gavroche", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Grantaire", "value": 1}, {"from": "Gavroche", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Gueulemer", "value": 1}, {"from": "Gavroche", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Babet", "value": 1}, {"from": "Gavroche", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Montparnasse", "value": 1}, {"from": "Gavroche", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Child1", "value": 2}, {"from": "Gavroche", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Child2", "value": 2}, {"from": "Gavroche", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Brujon", "value": 1}, {"from": "Gavroche", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "MmeHucheloup", "value": 1}, {"from": "Gillenormand", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Magnon", "value": 1}, {"from": "Gillenormand", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 9", "to": "MlleGillenormand", "value": 9}, {"from": "Gillenormand", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "LtGillenormand", "value": 1}, {"from": "Gillenormand", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 12", "to": "Marius", "value": 12}, {"from": "Gillenormand", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "BaronessT", "value": 1}, {"from": "MlleGillenormand", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "MmePontmercy", "value": 1}, {"from": "MlleGillenormand", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "MlleVaubois", "value": 1}, {"from": "MlleGillenormand", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "LtGillenormand", "value": 2}, {"from": "MlleGillenormand", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 6", "to": "Marius", "value": 6}, {"from": "LtGillenormand", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Marius", "value": 1}, {"from": "Marius", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "BaronessT", "value": 1}, {"from": "Marius", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Mabeuf", "value": 1}, {"from": "Marius", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 7", "to": "Enjolras", "value": 7}, {"from": "Marius", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 5", "to": "Combeferre", "value": 5}, {"from": "Marius", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Feuilly", "value": 1}, {"from": "Marius", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 9", "to": "Courfeyrac", "value": 9}, {"from": "Marius", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Bahorel", "value": 1}, {"from": "Marius", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 5", "to": "Bossuet", "value": 5}, {"from": "Marius", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Joly", "value": 2}, {"from": "Mabeuf", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Enjolras", "value": 1}, {"from": "Mabeuf", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Combeferre", "value": 2}, {"from": "Mabeuf", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Feuilly", "value": 1}, {"from": "Mabeuf", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Courfeyrac", "value": 2}, {"from": "Mabeuf", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Bahorel", "value": 2}, {"from": "Mabeuf", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Bossuet", "value": 1}, {"from": "Mabeuf", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Joly", "value": 1}, {"from": "Mabeuf", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "MotherPlutarch", "value": 3}, {"from": "Enjolras", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 15", "to": "Combeferre", "value": 15}, {"from": "Enjolras", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 4", "to": "Prouvaire", "value": 4}, {"from": "Enjolras", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 6", "to": "Feuilly", "value": 6}, {"from": "Enjolras", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 17", "to": "Courfeyrac", "value": 17}, {"from": "Enjolras", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 4", "to": "Bahorel", "value": 4}, {"from": "Enjolras", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 10", "to": "Bossuet", "value": 10}, {"from": "Enjolras", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 5", "to": "Joly", "value": 5}, {"from": "Enjolras", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Grantaire", "value": 3}, {"from": "Enjolras", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Claquesous", "value": 1}, {"from": "Enjolras", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "MmeHucheloup", "value": 1}, {"from": "Combeferre", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Prouvaire", "value": 2}, {"from": "Combeferre", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 5", "to": "Feuilly", "value": 5}, {"from": "Combeferre", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 13", "to": "Courfeyrac", "value": 13}, {"from": "Combeferre", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 5", "to": "Bahorel", "value": 5}, {"from": "Combeferre", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 9", "to": "Bossuet", "value": 9}, {"from": "Combeferre", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 5", "to": "Joly", "value": 5}, {"from": "Combeferre", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Grantaire", "value": 1}, {"from": "Prouvaire", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Feuilly", "value": 2}, {"from": "Prouvaire", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Courfeyrac", "value": 3}, {"from": "Prouvaire", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Bahorel", "value": 2}, {"from": "Prouvaire", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Bossuet", "value": 2}, {"from": "Prouvaire", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Joly", "value": 2}, {"from": "Prouvaire", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Grantaire", "value": 1}, {"from": "Feuilly", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 6", "to": "Courfeyrac", "value": 6}, {"from": "Feuilly", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Bahorel", "value": 3}, {"from": "Feuilly", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 6", "to": "Bossuet", "value": 6}, {"from": "Feuilly", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 5", "to": "Joly", "value": 5}, {"from": "Feuilly", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Grantaire", "value": 1}, {"from": "Courfeyrac", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 6", "to": "Bahorel", "value": 6}, {"from": "Courfeyrac", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 12", "to": "Bossuet", "value": 12}, {"from": "Courfeyrac", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 5", "to": "Joly", "value": 5}, {"from": "Courfeyrac", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Grantaire", "value": 2}, {"from": "Courfeyrac", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "MmeHucheloup", "value": 1}, {"from": "Bahorel", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 4", "to": "Bossuet", "value": 4}, {"from": "Bahorel", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 5", "to": "Joly", "value": 5}, {"from": "Bahorel", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Grantaire", "value": 1}, {"from": "Bahorel", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "MmeHucheloup", "value": 1}, {"from": "Bossuet", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 7", "to": "Joly", "value": 7}, {"from": "Bossuet", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Grantaire", "value": 3}, {"from": "Bossuet", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "MmeHucheloup", "value": 1}, {"from": "Joly", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Grantaire", "value": 2}, {"from": "Joly", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "MmeHucheloup", "value": 1}, {"from": "Grantaire", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "MmeHucheloup", "value": 1}, {"from": "Gueulemer", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 6", "to": "Babet", "value": 6}, {"from": "Gueulemer", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 4", "to": "Claquesous", "value": 4}, {"from": "Gueulemer", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Montparnasse", "value": 2}, {"from": "Gueulemer", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Brujon", "value": 3}, {"from": "Babet", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 4", "to": "Claquesous", "value": 4}, {"from": "Babet", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Montparnasse", "value": 2}, {"from": "Babet", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Brujon", "value": 3}, {"from": "Claquesous", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 2", "to": "Montparnasse", "value": 2}, {"from": "Claquesous", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Brujon", "value": 1}, {"from": "Montparnasse", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 1", "to": "Brujon", "value": 1}, {"from": "Child1", "title": "\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u043d\u044b\u0445 \u0441\u0446\u0435\u043d: 3", "to": "Child2", "value": 3}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "barnesHut": {
+            "avoidOverlap": 0,
+            "centralGravity": 0.3,
+            "damping": 0.09,
+            "gravitationalConstant": -6000,
+            "springConstant": 0.001,
+            "springLength": 120
+        },
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
